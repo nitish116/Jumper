@@ -1,5 +1,6 @@
 import cPickle
 import numpy as np
+import sys
 
 def get_pixel_num(cur_lat,cur_long,dict_extremes,lat_blocks,long_blocks):
     lat_block_size = float (dict_extremes['max_lat'] - dict_extremes['min_lat']) / float (lat_blocks)
@@ -10,19 +11,22 @@ def get_pixel_num(cur_lat,cur_long,dict_extremes,lat_blocks,long_blocks):
     long_number =  int ((cur_long - dict_extremes['min_long'])/ long_block_size)
     ans = {}
      
-
+    
     if lat_number < 0 or long_number < 0 or lat_number > lat_blocks or long_number > long_blocks:
-        print "JIHAAD"
-        import sys
-        sys.exit(1)
-    elif lat_number == lat_blocks:
+        print lat_number,long_number
+        print "get_pixel_num in merge_rides.py"
+        print "lat/long_number out of bounds" 
+        sys.exit()
+    if lat_number == lat_blocks:
         lat_number = lat_blocks - 1
-    elif long_number == long_blocks:
+    if long_number == long_blocks:
         long_number = long_blocks - 1    
 
     # print lat_number, long_number  
     ans['lat_number'] = lat_number
     ans['long_number'] = long_number
+
+    
 
     return ans    
 
