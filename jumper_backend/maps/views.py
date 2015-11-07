@@ -3,43 +3,37 @@ from django.http import HttpResponse
 from django.template import Context, loader
 import cPickle
 from jumper_backend.settings import *
+from django.views.decorators.csrf import csrf_exempt
+from django.template.context_processors import csrf
+from maps.forms import MyRegistrationForm
+
+
 
 
 def index(request):
-	t = loader.get_template('maps/index.html')
-	markers_ds = cPickle.load(open(BASE_DIR+"/tmp.dat","r"))
+    if request.POST:
+        form = MyRegistrationForm(request.POST)
+        
+        if form.is_valid():
+            ride_num = form.cleaned_data['ride_num']
+            runopt = form.cleaned_data['runopt']
+            run_input = {}
+            run_input['ride_num'] = int(ride_num)
+            run_input['runopt'] = int(runopt)
+            cPickle.dump(run_input,open('run_input.dat','w'))
+            os.system("python run.py")
+        else:
+            print "Not valid"    
+        t = loader.get_template('maps/index.html')
 
-
-
-	# markers = [
-	# ['1970-01-01 05:30:00',19.1152761,72.9073567,'red'],
-	# ['1970-01-01 05:30:00',19.1152761,72.9073567,'red'],
-	# ['1970-01-01 05:30:00',19.1152761,72.9073567,'red'],
-	# ['1970-01-01 05:30:00',19.1163372,72.9094061,'red'],
-	# ['1970-01-01 05:30:00',19.1163372,72.9094061,'red'],
-	# ['1970-01-01 05:30:00',19.1166115,72.9097435,'red'],
-	# ['1970-01-01 05:30:00',19.1166115,72.9097435,'red'],
-	# ['1970-01-01 05:30:00',19.1169682,72.9101377,'red'],
-	# ['1970-01-01 05:30:00',19.1156459,72.9122722,'red'],
-	# ['1970-01-01 05:30:00',19.1154211,72.9122599,'red'],
-	# ['1970-01-01 05:30:00',19.1154211,72.9122599,'red'],
-	# ['1970-01-01 05:30:00',19.1144489,72.9094428,'red'],
-	# ['1970-01-01 05:30:00',19.1144489,72.9094428,'red'],
-	# ['1970-01-01 05:30:00',19.11439,72.9074796,'red'],
-	# ['1970-01-01 05:30:00',19.11439,72.9074796,'red'],
-	# ['1970-01-01 05:30:00',19.1143978,72.9087986,'red'],
-	# ['1970-01-01 05:30:00',19.1155818,72.9083319,'red'],
-	# ['1970-01-01 05:30:00',19.1159421,72.9088539,'red'],
-	# ['lite',19.117164946,72.910972866,'red']
-
-	# ];
-
-	# markers_green = [['start',19.1152761,72.9073567,'red'],
-	# ['end',19.1159421,72.9088539,'red'],
-	# ['lite',19.117191773,72.910972866,'grn']
- #    ];
-
- #    RouteCoordinates = [{lat: 19.1152761, lng: 72.9073567},{lat: 19.1152761, lng: 72.9073567},{lat: 19.1152761, lng: 72.9073567},{lat: 19.1163372, lng: 72.9094061},{lat: 19.1163372, lng: 72.9094061},{lat: 19.1166115, lng: 72.9097435},{lat: 19.1166115, lng: 72.9097435},{lat: 19.1169682, lng: 72.9101377},{lat: 19.1156459, lng: 72.9122722},{lat: 19.1154211, lng: 72.9122599},{lat: 19.1154211, lng: 72.9122599},{lat: 19.1144489, lng: 72.9094428},{lat: 19.1144489, lng: 72.9094428},{lat: 19.11439, lng: 72.9074796},{lat: 19.11439, lng: 72.9074796},{lat: 19.1143978, lng: 72.9087986},{lat: 19.1155818, lng: 72.9083319},{lat: 19.1159421, lng: 72.9088539}  ];
-
-	c = Context(markers_ds)
-	return HttpResponse(t.render(c))
+        markers_ds = cPickle.load(open(BASE_DIR+"/tmp.dat","r"))
+        c = Context(markers_ds)
+        c.update(csrf(request))
+        return HttpResponse(t.render(c))
+    else:
+        t = loader.get_template('maps/index.html')
+        markers_ds = cPickle.load(open(BASE_DIR+"/tmp.dat","r"))
+        c = Context(markers_ds)
+        c.update(csrf(request))
+        return HttpResponse(t.render(c))
+        

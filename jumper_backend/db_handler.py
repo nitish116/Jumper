@@ -51,5 +51,29 @@ def collect_columndata_timestamp(AllData,datatype):
                 h_time = float(h_time)
             vt_list.append((cur_value,h_time))    
             
-    return vt_list               
+    return vt_list  
+
+def dc_latlong2path(gps_lat_list,gps_long_list):
+    path = []
+    for ii in range(len(gps_lat_list)):
+        path.append((gps_lat_list[ii][0],gps_long_list[ii][0]))
+    return path    
+
+
+def dc_srout2path(snapped_path):
+    ans = []
+    for elem in snapped_path:
+        ans.append((elem['location']['latitude'],elem['location']['longitude']))
+    return ans    
+
+
+def dc_tuple2lists(snapped_path):
+    gps_lat_list = []
+    gps_long_list = []
+    for elem in snapped_path:
+        gps_lat_list.append((elem[0],0))
+        gps_long_list.append((elem[1],0))
+    return {'lat_list':gps_lat_list,'long_list':gps_long_list}    
+
+
 

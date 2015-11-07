@@ -1,14 +1,102 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <style type="text/css">
-      html, body { height: 100%; margin: 0; padding: 0; }
-      #map { height: 100%; }
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Route Maps</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+        float: left;
+        width: 70%;
+        height: 100%;
+      }
+      #right-panel {
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+
+      #right-panel select, #right-panel input {
+        font-size: 15px;
+      }
+
+      #right-panel select {
+        width: 100%;
+      }
+
+      #right-panel i {
+        font-size: 12px;
+      }
+
+      #right-panel {
+        margin: 20px;
+        border-width: 2px;
+        width: 20%;
+        float: left;
+        text-align: left;
+        padding-top: 20px;
+      }
+      #directions-panel {
+        margin-top: 20px;
+        background-color: #FFEE77;
+        padding: 10px;
+      }
     </style>
   </head>
+  <form action="{% url 'index' %}" method="post" id="auth">
+    {% csrf_token %}
+    <p>ride_num:<br>
+    <input type="text" name="ride_num" id="ride_num"> </p>
+
+    <p>runopt:<br>
+    <input type="text" name="runopt" id="runopt"> </p>
+    <input type="submit" value="Submit">      
+  </form>
+
   <body>
     <div id="map"></div>
+    <!-- <div id="right-panel">
+    <div>
+    <b>Start:</b>
+    <select id="start">
+      <option value="Halifax, NS">Halifax, NS</option>
+      <option value="Boston, MA">Boston, MA</option>
+      <option value="New York, NY">New York, NY</option>
+      <option value="Miami, FL">Miami, FL</option>
+    </select>
+    <br>
+
+    <br>
+      <input type="submit" id="submit">
+    </div>
+    <div id="directions-panel"></div>
+    </div> -->
     <script type="text/javascript">
+    var frm = $('#auth');
+
+    frm.submit(function () {
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: frm.serializeArray(),
+            cache: false, 
+            success: function (data) {
+                $("#check").html(data); 
+            },
+            error: function(data) {
+                $("#check").html("Something went wrong!");
+            }
+        });
+        return false;
+    }); 
+</script>
+    <script>
 
 var map;
 function initMap() {
@@ -17,12 +105,9 @@ function initMap() {
     zoom: 17
   });
   var markers = {{markers|safe}}
-
   var markers_green = {{markers_green|safe}}
-
-
   var infowindow = new google.maps.InfoWindow(), marker, i;
-  for (i = 0; i < markers.length-1; i++) {  
+  for (i = 0; i < markers.length; i++) {  
       marker = new google.maps.Marker({
           position: new google.maps.LatLng(markers[i][1], markers[i][2]),
           map: map,
@@ -35,7 +120,7 @@ function initMap() {
           }
       })(marker, i));
   }
-  for (i = 0; i < markers_green.length-1; i++) {  
+  for (i = 0; i < markers_green.length; i++) {  
       marker = new google.maps.Marker({
           position: new google.maps.LatLng(markers_green[i][1], markers_green[i][2]),
           map: map,
@@ -50,7 +135,7 @@ function initMap() {
   }  
   var RouteCoordinates = {{RouteCoordinates|safe}}
 
-  for (i = 0; i < RouteCoordinates.length; i++) {  
+  for (i = 0; i < RouteCoordinates.length-1; i++) {  
      if(0==0){
       var curRoute = [RouteCoordinates[i],RouteCoordinates[i+1]];
      var RoutePath = new google.maps.Polyline({
